@@ -1,9 +1,6 @@
 #! /bin/bash
 
-module purge
-module load rhel9/default-dawn
-
-module load intelpython-conda/2025.0
+source setup.sh
 
 rm -rf venv_project
 
@@ -16,5 +13,3 @@ pip install -U pip
 pip install intel-extension-for-openxla
 
 pip install -r https://raw.githubusercontent.com/intel/intel-extension-for-openxla/main/test/requirements.txt
-
-python --version
