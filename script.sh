@@ -5,6 +5,8 @@ module load rhel9/default-dawn
 
 module load intelpython-conda/2025.0
 
+rm -rf venv_project
+
 python3 -m venv --system-site-packages venv_project
 
 source venv_project/bin/activate
@@ -15,4 +17,4 @@ pip install intel-extension-for-openxla
 
 pip install -r https://raw.githubusercontent.com/intel/intel-extension-for-openxla/main/test/requirements.txt
 
-
+python --version
