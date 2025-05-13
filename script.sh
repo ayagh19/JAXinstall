@@ -3,7 +3,7 @@
 module purge
 module load rhel9/default-dawn
 
-module load intelpython-conda
+module load intelpython-conda/2025.0
 
 python3 -m venv --system-site-packages venv_project
 
