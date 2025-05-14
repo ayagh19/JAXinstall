@@ -14,10 +14,17 @@ def check_devices():
     for device in devices:
         print(f"- {device} (Type: {device.device_kind})")
     if any ('gpu' in device.device_kind.lower() for device in devices):
-        print("GPU is available!", "Available devices:", devices)
+        print("GPU is available! Number of devices:", len(devices), "Available devices:", devices)
     else:
         print("No GPU found.")
-    
+    return devices
+
+# ----------------- ARRAY RESHAPE FOR NO OF DEVICES -----------------
+# num_devices = len(jax.devices())
+# def reshape_array_for_devices(arr):
+#     if len(arr) % num_devices != 0:
+#         raise ValueError(f"Array length {len(arr)} is not divisible by number of devices {num_devices}.")
+#     return arr.reshape((num_devices, -1))
 
 # ----------------- BASIC JAX OPERATIONS -----------------
 
@@ -69,6 +76,7 @@ def vectorization_test():
 def parallel_computation_test():
     print("\nParallel Computation with pmap:")
     xs = jnp.arange(16.0).reshape((8, 2))
+    # print("Reshaped Array for Devices:", len(xs))
     parallel_add = pmap(lambda x: x + 1.0)
     print("pmap result:", parallel_add(xs))
 
@@ -110,16 +118,21 @@ def distributed_computing_test():
 
 def main():
     print("\n=== JAX Test Script ===\n")
-    check_devices()
+    # check_devices()
+    devices = check_devices()
+    print("Number of devices:", len(devices))
     basic_operations()
     jit_test()
     autodiff_test()
     vectorization_test()
-    parallel_computation_test()
+    if len(devices) > 1:
+        parallel_computation_test()
+        distributed_computing_test()
+    else:
+        print("Skipping parallel computation and distributed_computing tests as only one device is available.")  
     array_manipulation_test()
     linear_algebra_test()
     random_number_test()
-    distributed_computing_test()
 
 
 if __name__ == "__main__":
