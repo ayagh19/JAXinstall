@@ -103,7 +103,7 @@ def distributed_computing_test():
     def distributed_mean(x):
         return lax.pmean(x, axis_name="i")
     
-    xs = jnp.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0])])
+    xs = jnp.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0])
     print("Distributed Mean:", pmap(distributed_mean, axis_name="i")(xs))
 
 # ----------------- MAIN FUNCTION -----------------
