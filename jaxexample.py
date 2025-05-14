@@ -13,10 +13,11 @@ def check_devices():
     devices = jax.devices()
     for device in devices:
         print(f"- {device} (Type: {device.device_kind})")
-    if any(device.device_kind == 'gpu' for device in devices):
+    if any ('gpu' in device.device_kind.lower() for device in devices):
         print("GPU is available!", "Available devices:", devices)
     else:
         print("No GPU found.")
+    
 
 # ----------------- BASIC JAX OPERATIONS -----------------
 
