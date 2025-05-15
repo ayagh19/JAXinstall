@@ -5,28 +5,29 @@ from jax import jit, grad, jit, vmap, pmap, lax
 import numpy as np
 import time
 
+# to do 
+# set up jax to use devices on more than one node
+
 
 # ----------------- DEVICE INFO CHECK -----------------
 
 def check_devices():
     print("\nDevice Info:")
     devices = jax.devices()
-    for device in devices:
-        print(f"- {device} (Type: {device.device_kind})")
-    if any ('gpu' in device.device_kind.lower() for device in devices):
-        print("GPU is available! Number of devices:", len(devices), "Available devices:", devices)
+    device_types = {device.device_kind.lower() for device in devices}
+    print(f"Total Devices: {len(devices)}")
+    print(f"Device Types: {device_types}")
+    
+    if "gpu" in device_types:
+        print(f"GPU is available! Number of devices: {len(devices)}")
+    elif "tpu" in device_types:
+        print(f"TPU is available! Number of devices: {len(devices)}")
     else:
-        print("No GPU found.")
+        print("No GPU or TPU found. Running on CPU.")
+    
     return devices
 
-# ----------------- ARRAY RESHAPE FOR NO OF DEVICES -----------------
-# num_devices = len(jax.devices())
-# def reshape_array_for_devices(arr):
-#     if len(arr) % num_devices != 0:
-#         raise ValueError(f"Array length {len(arr)} is not divisible by number of devices {num_devices}.")
-#     return arr.reshape((num_devices, -1))
-
-# ----------------- BASIC JAX OPERATIONS -----------------
+# ----------------- BASIC OPERATIONS -----------------
 
 def basic_operations():
     print("\nBasic JAX Operations:")
@@ -71,14 +72,6 @@ def vectorization_test():
     vec_input = jnp.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0])
     print("Vectorised Output:", batched_square(vec_input))
 
-# ----------------- PARALLEL COMPUTATION -----------------
-
-def parallel_computation_test():
-    print("\nParallel Computation with pmap:")
-    xs = jnp.arange(16.0).reshape((8, 2))
-    # print("Reshaped Array for Devices:", len(xs))
-    parallel_add = pmap(lambda x: x + 1.0)
-    print("pmap result:", parallel_add(xs))
 
 # ----------------- ARRAY MANIPULATION -----------------
 
@@ -104,35 +97,51 @@ def random_number_test():
     rand_array = jrandom.normal(key, (3, 3))
     print("Random Array:", rand_array)
 
+# ----------------- PARALLEL COMPUTATION -----------------
+
+def parallel_computation_test():
+    print("\nParallel Computation Test:")
+    num_devices = len(jax.devices())
+    xs = jnp.arange(num_devices * 2).reshape((num_devices, 2))
+    
+    # Use pmap if more than one device is available, otherwise use vmap as a single-device fallback
+    if num_devices > 1:
+        parallel_add = pmap(lambda x: x + 1.0)
+        print("pmap result:", parallel_add(xs))
+    else:
+        print("Only one device found, using vmap instead.")
+        vectorised_add = vmap(lambda x: x + 1.0)
+        print("vmap result:", vectorised_add(xs))
+
 # ----------------- DISTRIBUTED COMPUTING -----------------
 
 def distributed_computing_test():
     print("\nDistributed Computing Test:")
-    def distributed_mean(x):
-        return lax.pmean(x, axis_name="i")
-    
-    xs = jnp.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0])
-    print("Distributed Mean:", pmap(distributed_mean, axis_name="i")(xs))
+    num_devices = len(jax.devices())
+    xs = jnp.arange(num_devices * 2).reshape((num_devices, 2))
+    if num_devices > 1:
+        def distributed_mean(x):
+            return lax.pmean(x, axis_name="i")
+        print("Distributed Mean:", pmap(distributed_mean, axis_name="i")(xs))
+    else:
+        print("Only one device found, skipping pmap. Running local mean instead.")
+        print("Local Mean:", jnp.mean(xs, axis=0))
 
 # ----------------- MAIN FUNCTION -----------------
 
 def main():
     print("\n=== JAX Test Script ===\n")
-    # check_devices()
-    devices = check_devices()
-    print("Number of devices:", len(devices))
+    check_devices()
     basic_operations()
     jit_test()
     autodiff_test()
     vectorization_test()
-    if len(devices) > 1:
-        parallel_computation_test()
-        distributed_computing_test()
-    else:
-        print("Skipping parallel computation and distributed_computing tests as only one device is available.")  
     array_manipulation_test()
     linear_algebra_test()
     random_number_test()
+
+    parallel_computation_test()
+    distributed_computing_test()
 
 
 if __name__ == "__main__":
