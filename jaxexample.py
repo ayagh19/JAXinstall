@@ -20,7 +20,7 @@ import time
 import logging
 from contextlib import contextmanager
 
-# Force JAX to prioritize GPU if available, fallback to CPU otherwise
+# Force JAX to prioritise GPU if available, fallback to CPU otherwise
 os.environ.setdefault("JAX_PLATFORM_NAME", "cpu")
 
 import atexit
