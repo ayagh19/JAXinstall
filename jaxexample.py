@@ -28,30 +28,31 @@ atexit.register(lambda: jax.distributed.shutdown() if jax.process_count() > 1 el
 
 # ----------------- JAX Distributed Setup -----------------
 
-def initialise_jax_distributed():
-    master_addr = os.environ.get("MASTER_ADDR", "localhost")
-    master_port = int(os.environ.get("MASTER_PORT", "12345"))
-    num_nodes = int(os.environ.get("SLURM_NNODES", "1"))
-    num_devices_per_node = jax.local_device_count()
+# def initialise_jax_distributed():
+#     master_addr = os.environ.get("MASTER_ADDR", "localhost")
+#     master_port = int(os.environ.get("MASTER_PORT", "12345"))
+#     num_nodes = int(os.environ.get("SLURM_NNODES", "1"))
+#     num_devices_per_node = jax.local_device_count()
 
-    # Calculate global rank based on SLURM environment variables (or fallback)
-    local_rank = int(os.environ.get("SLURM_PROCID", "0"))
-    node_rank = int(os.environ.get("SLURM_NODEID", "0"))
-    global_rank = node_rank * num_devices_per_node + local_rank
+#     # Calculate global rank based on SLURM environment variables (or fallback)
+#     local_rank = int(os.environ.get("SLURM_PROCID", "0"))
+#     node_rank = int(os.environ.get("SLURM_NODEID", "0"))
+#     global_rank = node_rank * num_devices_per_node + local_rank
 
-    total_processes = num_nodes * num_devices_per_node
+#     total_processes = num_nodes * num_devices_per_node
     
-    if total_processes > 1:
-        jax.distributed.initialize(
-            coordinator_address=f"{master_addr}:{master_port}",
-            num_processes=total_processes,
-            process_id=global_rank,
-        )
+#     if total_processes > 1:
+#         print("working")
+#         jax.distributed.initialize(
+#             coordinator_address=f"{master_addr}:{master_port}",
+#             num_processes=total_processes,
+#             process_id=global_rank,
+#         )
+#     print("done")
+#     logging.info(f"Node {jax.process_index()} initialised with {jax.local_device_count()} devices.")
 
-    logging.info(f"Node {jax.process_index()} initialised with {jax.local_device_count()} devices.")
-
-if jax.device_count() > 1:
-    initialise_jax_distributed()
+# if jax.device_count() > 1:
+#     initialise_jax_distributed()
 
 
 
